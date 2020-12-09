@@ -10,7 +10,6 @@ from torch_lr_finder.lr_finder import TrainDataLoaderIter
 
 class Trainer(BaseCallback):
 
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   def __init__(self, model, data, loss_func, metrics=[], cbs=[]):
     self.model = model
     self.data = data
@@ -18,9 +17,10 @@ class Trainer(BaseCallback):
     self.cbs = cbs
     self.loss_func = loss_func
     self.initial_state = self.model.state_dict()
+    self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
   def start(self, *args):
-    self.model.to(device)
+    self.model.to(self.device)
     self.epoch = 0
     self.best_loss = 100
     self.dataset_sizes =  {
@@ -50,8 +50,8 @@ class Trainer(BaseCallback):
   def before_batch(self, *args):
     self.inputs = self.batch['x']
     self.targets = self.batch['y']
-    self.inputs = self.inputs.to(device)
-    self.targets = self.targets.to(device)
+    self.inputs = self.inputs.to(self.device)
+    self.targets = self.targets.to(self.device)
     self.opt.zero_grad()
     partial(self.calc_metrics, 'before_batch', self)(*args)
     partial(self.run_cbs, 'before_batch', self)(*args)
@@ -112,7 +112,7 @@ class Trainer(BaseCallback):
     
     self.set_optimizer(opt=opt, lr=start_lr, wd=wd)
     dl = self.LRDataloader(self.data['train'])
-    lr_finder = LRFinder(self.model, self.opt, self.loss_func, device="cuda")
+    lr_finder = LRFinder(self.model, self.opt, self.loss_func, device="cuda" if torch.cuda.is_available() else "cpu" )
     lr_finder.range_test(dl, end_lr=end_lr, num_iter=100, accumulation_steps=accum_steps)
     lr_finder.plot() 
     lr_finder.reset()
