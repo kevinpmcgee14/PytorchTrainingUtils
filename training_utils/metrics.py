@@ -1,7 +1,7 @@
 import torch
 from training_utils.base import BaseCallback
 
-class Accuracy(Callback):
+class Accuracy(BaseCallback):
 
   def __init__(self):
     self.name = 'accuracy'
