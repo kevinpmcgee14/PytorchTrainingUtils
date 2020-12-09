@@ -1,5 +1,5 @@
 import torch
-from base import BaseCallback
+from .base import BaseCallback
 
 class Accuracy(Callback):
 

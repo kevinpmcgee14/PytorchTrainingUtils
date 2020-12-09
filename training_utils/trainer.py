@@ -4,7 +4,7 @@ import torch
 from torch import optim
 from tqdm.auto import tqdm
 from functools import partial
-from base import BaseCallback 
+from .base import BaseCallback 
 from torch_lr_finder import LRFinder
 from torch_lr_finder.lr_finder import TrainDataLoaderIter
 

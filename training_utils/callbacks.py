@@ -4,7 +4,7 @@ import pandas as pd
 from torchvision import transforms
 from collections import OrderedDict
 from IPython.display import clear_output, display
-from base import BaseCallback
+from .base import BaseCallback
 
 class DFCallback(BaseCallback):
 
