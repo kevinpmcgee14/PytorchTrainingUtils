@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='training_utils', 
-    version='1.1', 
-    packages=find_packages('training_utils', 'training_utils.*'),
+    version='0.0.1', 
+    packages=find_packages(),
     install_requires=[
         'pandas==1.1.4',
         'torch==1.7.0+cu101',
