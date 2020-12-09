@@ -1,0 +1,6 @@
+[submodule "lib/pandas"]
+	path = lib/pandas
+	url = https://github.com/pandas-dev/pandas.git
+[submodule "lib/torch"]
+	path = lib/torch
+	url = https://github.com/pytorch/pytorch.git
