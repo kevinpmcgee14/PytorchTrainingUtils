@@ -1,9 +1,12 @@
+import sys
 import copy
 import torch
 import pandas as pd 
 from torchvision import transforms
 from collections import OrderedDict
+from datetime import datetime
 from IPython.display import clear_output, display
+from IPython import get_ipython
 from training_utils.base import BaseCallback
 
 class DFCallback(BaseCallback):
@@ -13,6 +16,7 @@ class DFCallback(BaseCallback):
 
   def before_epoch(self, trainer, *args):
     self.display_df()
+    start = datetime.now()
     trainer.epoch += 1 
     epoch_string = '{}/{}'.format(trainer.epoch, trainer.num_epochs)
     self.row = [epoch_string]
@@ -22,6 +26,14 @@ class DFCallback(BaseCallback):
     self.row += ['{:.4f}'.format(metric.value) for metric in trainer.metrics]
 
   def after_epoch(self, trainer, *args):
+    end = datetime.now()
+    td = (now - then)
+    h = td.seconds//3600
+    m = td.seconds//60 % 60
+    s = td.seconds%60
+    duration = f'{h}:{m}:{s}'
+    self.row.append(durration)
+    
     self.update_df(self.row)
     self.display_df()
 
@@ -34,6 +46,7 @@ class DFCallback(BaseCallback):
     columns.update({f'train_{metric.name}': [] for metric in trainer.metrics})
     columns.update({'val_loss':[]})
     columns.update({f'val_{metric.name}': [] for metric in trainer.metrics})
+    columns.update({'epoch_duration': []})
     return pd.DataFrame(columns)
 
   def update_df(self, row):
@@ -64,6 +77,57 @@ class SaveWeightsCallback(BaseCallback):
     trainer.model.load_state_dict(torch.load(self.path))
 
 
+    
+class EarlyStopping(training_utils.base.BaseCallback):
+
+  class IpyExit(SystemExit):
+    """Exit Exception for IPython.
+
+    Exception temporarily redirects stderr to buffer.
+    """
+    def __init__(self):
+        print("exiting now.")  # optionally print some message to stdout, too
+
+
+    def __del__(self):
+        sys.stderr.close()
+        sys.stderr = sys.__stderr__  # restore from backup
+
+
+  def __init__(self, stop_epochs=10, delta=.01):
+    self.name = 'early_stopping'
+    self.best_loss = None
+    self.stop_epochs = stop_epochs
+    self.delta = delta
+
+  def start(self, trainer, *args):
+    self.epoch_count = 0
+    
+  def exit(self):
+    
+    def ipy_exit():
+      raise IpyExit
+
+    if get_ipython():    # ...run with IPython
+        e = ipy_exit  # rebind to custom exit
+    else:
+        e = exit      # just make exit importable
+        
+    e()
+
+  def after_epoch(self, trainer, *args):
+    if trainer.phase == 'val':
+      if not self.best_loss:
+        self.best_loss = trainer.epoch_loss
+      elif trainer.epoch_loss < (self.best_loss - delta):
+        self.best_loss = trainer.epoch_loss
+        self.epoch_count = 0
+      else:
+        self.epoch_count += 1
+    if self.epoch_count >= self.stop_epochs:
+      print('Loss has plateued for at least {} epochs in a row. Stopping early.')
+      self.exit()
+      
 class FiveCropTTA(BaseCallback):
 
   def __init__(self, size):
