@@ -9,7 +9,7 @@ setup(
         'torchvision',
         'torch-lr-finder',
         'pandas==1.1.4',
-        'tqdm==4.41.1'
+        'tqdm==4.48.0'
     ],
 
     )
