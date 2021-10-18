@@ -78,7 +78,7 @@ class SaveWeightsCallback(BaseCallback):
 
 
     
-class EarlyStopping(training_utils.base.BaseCallback):
+class EarlyStopping(BaseCallback):
 
   class IpyExit(SystemExit):
     """Exit Exception for IPython.
