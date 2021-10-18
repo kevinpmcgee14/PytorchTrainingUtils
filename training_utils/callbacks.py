@@ -16,7 +16,8 @@ class DFCallback(BaseCallback):
 
   def before_epoch(self, trainer, *args):
     self.display_df()
-    start = datetime.now()
+    self.start_time = datetime.now()
+    self.end_time = None
     trainer.epoch += 1 
     epoch_string = '{}/{}'.format(trainer.epoch, trainer.num_epochs)
     self.row = [epoch_string]
@@ -26,13 +27,13 @@ class DFCallback(BaseCallback):
     self.row += ['{:.4f}'.format(metric.value) for metric in trainer.metrics]
 
   def after_epoch(self, trainer, *args):
-    end = datetime.now()
-    td = (now - then)
+    self.end_time = datetime.now()
+    td = (self.end_time - self.start_time)
     h = td.seconds//3600
     m = td.seconds//60 % 60
     s = td.seconds%60
     duration = f'{h}:{m}:{s}'
-    self.row.append(durration)
+    self.row.append(duration)
     
     self.update_df(self.row)
     self.display_df()
