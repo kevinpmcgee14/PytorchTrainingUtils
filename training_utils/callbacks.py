@@ -120,7 +120,7 @@ class EarlyStopping(BaseCallback):
     if trainer.phase == 'val':
       if not self.best_loss:
         self.best_loss = trainer.epoch_loss
-      elif trainer.epoch_loss < (self.best_loss - delta):
+      elif trainer.epoch_loss < (self.best_loss - self.delta):
         self.best_loss = trainer.epoch_loss
         self.epoch_count = 0
       else:
